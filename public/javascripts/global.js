@@ -18,7 +18,7 @@ function switchLight(event) {
         if (response.msg ==='') {
             console.log('message reçu');
         } else {
-            console.log('NON!! Pas reçu!');
+            console.log('NON!! Pas reçu!', response.msg);
         }
     });
 }

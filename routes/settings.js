@@ -1,13 +1,16 @@
 var express = require('express');
 var router = express.Router();
 
+var piblaster = require('pi-blaster.js');
+
+var state = false;
 
 
 /*
  settings
  */
 router.get('/settings', function (req, res) {
-    console.log('coucou');
+    console.log('yeah');
 });
 
 /*
@@ -15,7 +18,17 @@ router.get('/settings', function (req, res) {
  */
 router.post('/update', function (req, res) {
     console.log('coucou');
-    res.send( {msg: ''});
+    if (state) {
+        console.log('state: ', state);
+        state = false;
+        piblaster.setPwm(21, 0 );
+    } else {
+        console.log('state: ', state);
+        state = true;
+        piblaster.setPwm(21, 1 );
+    }
+
+    res.send( {msg: state});
 });
 
 
