@@ -15,6 +15,10 @@ var lamp = function () {
     this.turnLedOff = function (led) {
         //piblaster.setPwm(led, 0 );
         console.log('inside lamp off');
+    };
+
+    this.updateSettings = function(settings) {
+        console.log('settings updated');
     }
 };
 

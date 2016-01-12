@@ -2,12 +2,26 @@
  * Created by yannick on 07/01/2016.
  */
 
-
+var settings = {};
 
 $(document).ready(function() {
     getServerTime();
+    getSettings();
     $('#btnTurnLightOn').on('click', switchLight);
-    $('#mondayhour').on('input', setSettings());
+    $('#mondayhour').on('blur', setSettings);
+    $('#mondaymin').on('blur', setSettings);
+    $('#tuesdayhour').on('blur', setSettings);
+    $('#tuesdaymin').on('blur', setSettings);
+    $('#wednesdayhour').on('blur', setSettings);
+    $('#wednesdaymin').on('blur', setSettings);
+    $('#thursdayhour').on('blur', setSettings);
+    $('#thursdaymin').on('blur', setSettings);
+    $('#fridayhour').on('blur', setSettings);
+    $('#fridaymin').on('blur', setSettings);
+    $('#saturdayhour').on('blur', setSettings);
+    $('#saturdaymin').on('blur', setSettings);
+    $('#sundayhour').on('blur', setSettings);
+    $('#sundaymin').on('blur', setSettings);
     //setInterval(getClock,1000);
 });
 
@@ -32,27 +46,27 @@ function switchLight(event) {
     });
 }
 
-function setSettings(settings) {
-    var oldsettings = {
-        mondayhour: 8,
-        mondaymin:0,
-        tuesdayhour:7,
-        tuesdaymin:0,
-        wednesdayhour:7,
-        wednesdaymin:7,
-        thursdayhour:7,
-        thursdaymin:0,
-        fridayhour:7,
-        fridaymin:0,
-        saturdayhour:8,
-        saturdaymin:0,
-        sundayhour:8,
-        sundaymin:0
+function setSettings() {
+    settings = {
+        mondayhour: $('#mondayhour').val(),
+        mondaymin:$('#mondaymin').val(),
+        tuesdayhour:$('#tuesdayhour').val(),
+        tuesdaymin:$('#tuesdaymin').val(),
+        wednesdayhour:$('#wednesdayhour').val(),
+        wednesdaymin:$('#wednesdaymin').val(),
+        thursdayhour:$('#thursdayhour').val(),
+        thursdaymin:$('#thursdaymin').val(),
+        fridayhour:$('#fridayhour').val(),
+        fridaymin:$('#fridaymin').val(),
+        saturdayhour:$('#saturdayhour').val(),
+        saturdaymin:$('#saturdaymin').val(),
+        sundayhour:$('#sundayhour').val(),
+        sundaymin:$('#sundaymin').val()
     };
 
     $.ajax({
         type: 'POST',
-        data: oldsettings,
+        data: settings,
         url: '/settings/setsettings',
         dataType: 'JSON'
     }).done(function( response ) {
@@ -76,6 +90,21 @@ function getServerTime(){
 function getSettings(){
     $.getJSON('/settings/getsettings', function(data) {
         console.log('settings received: ', data);
+        settings = data;
+        $('#mondayhour').val(settings.mondayhour);
+        $('#mondaymin').val(settings.mondaymin);
+        $('#tuesdayhour').val(settings.tuesdayhour);
+        $('#tuesdaymin').val(settings.tuesdaymin);
+        $('#wednesdayhour').val(settings.wednesdayhour);
+        $('#wednesdaymin').val(settings.wednesdaymin);
+        $('#thursdayhour').val(settings.thursdayhour);
+        $('#thursdaymin').val(settings.thursdaymin);
+        $('#fridayhour').val(settings.fridayhour);
+        $('#fridaymin').val(settings.fridaymin);
+        $('#saturdayhour').val(settings.saturdayhour);
+        $('#saturdaymin').val(settings.saturdaymin);
+        $('#sundayhour').val(settings.sundayhour);
+        $('#sundaymin').val(settings.sundaymin);
     })
 }
 

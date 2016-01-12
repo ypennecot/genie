@@ -23,6 +23,8 @@ var settings = {
     sundayhour:8,
     sundaymin:0
 };
+lamp.updateSettings(settings);
+
 /*
  settings
  */
@@ -36,7 +38,7 @@ router.get('/gettime', function (req, res) {
 });
 
 router.get('/getsettings',function(req,res) {
-    console.log('settings requested');
+    console.log('settings requested ', settings);
     res.send(settings);
 });
 
@@ -60,9 +62,10 @@ router.post('/update', function (req, res) {
 });
 
 router.post('/setsettings', function (req, res) {
-    console.log('post settings: ', req);
-    settings=req;
+    console.log('post settings: ', req.body);
+    settings=req.body;
     res.send( {msg: state});
+    lamp.updateSettings(settings);
 });
 
 
