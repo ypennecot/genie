@@ -1,28 +1,11 @@
 var express = require('express');
 var router = express.Router();
 
-//var piblaster = require('pi-blaster.js');
 var Lamp = require('../lamp/lamp');
+var State = require('../lamp/State');
 
-
-var state = false;
 var lamp = new Lamp();
-//var settings = {
-//    mondayhour: 7,
-//    mondaymin:0,
-//    tuesdayhour:7,
-//    tuesdaymin:0,
-//    wednesdayhour:7,
-//    wednesdaymin:7,
-//    thursdayhour:7,
-//    thursdaymin:0,
-//    fridayhour:7,
-//    fridaymin:0,
-//    saturdayhour:8,
-//    saturdaymin:0,
-//    sundayhour:8,
-//    sundaymin:0
-//};
+
 
 var settings = {
     wakeAllowed: [
@@ -30,9 +13,13 @@ var settings = {
         {hour: 18, min: 3},
         {hour: 18, min: 3},
         {hour: 18, min: 48},
+        {hour: 12, min: 54},
         {hour: 18, min: 3},
-        {hour: 18, min: 3},
-        {hour: 18, min: 3}]
+        {hour: 18, min: 3}],
+    nightLight: {
+        duration: 1000,
+        intensity: 80
+    }
 };
 lamp.updateSettings(settings);
 
@@ -40,49 +27,42 @@ lamp.updateSettings(settings);
  settings
  */
 router.get('/settings', function (req, res) {
-    console.log('yeah');
+    console.log('GET /settings');
 });
 
+
 router.get('/gettime', function (req, res) {
-    console.log('time requested');
-    res.send({msg: Date.now()});
+    console.log('GET /settings/gettime');
+    console.log('time requested' + Date.now());
+    console.log(new Date().getTimezoneOffset());
+    res.send({
+        timeStamp: Date.now(),
+        timezoneOffset: new Date().getTimezoneOffset()
+    });
 });
 
 router.get('/getsettings', function (req, res) {
+    console.log('GET /settings/getsettings');
     console.log('settings requested ', settings);
     res.json(settings);
 });
 
-
-/*
- * POST to adduser.
- */
 router.post('/switchon', function (req, res) {
-    if (state) {
-        console.log('state: ', state);
-        state = false;
-        lamp.turnLedOff(21);
-        //piblaster.setPwm(21, 0 );
+    if (State.nightLightStatus) {
+        lamp.turnNightLightOff();
     } else {
-        console.log('state: ', state);
-        state = true;
-        lamp.turnLedOn(21);
-        //piblaster.setPwm(21, 1 );
+        lamp.turnNightLightOn();
     }
     res.send({msg: ''});
 });
 
-router.post('/setsettings', function (req, res, onSettingsReceived) {
-    //console.log('req.body: ', req.body);
-    settings = JSON.parse(req.body);
+router.post('/setsettings', function (req, res) {
+    console.log('req.body: ', req.body);
+    settings = JSON.parse(JSON.stringify(req.body));
     console.log('settings received', settings);
-    //lamp.updateSettings(settings);
+    lamp.updateSettings(settings);
     res.send('coucou');
 });
-
-function onSettingsReceived() {
-    lamp.updateSettings(settings);
-}
 
 
 module.exports = router;

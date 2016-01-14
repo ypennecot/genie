@@ -9,20 +9,6 @@ $(document).ready(function () {
     getSettings();
     $('#btnTurnLightOn').on('click', switchLight);
     $('#updateSettings').on('click', setSettings);
-    //$('#mondayhour').on('blur', setSettings);
-    //$('#mondaymin').on('blur', setSettings);
-    //$('#tuesdayhour').on('blur', setSettings);
-    //$('#tuesdaymin').on('blur', setSettings);
-    //$('#wednesdayhour').on('blur', setSettings);
-    //$('#wednesdaymin').on('blur', setSettings);
-    //$('#thursdayhour').on('blur', setSettings);
-    //$('#thursdaymin').on('blur', setSettings);
-    //$('#fridayhour').on('blur', setSettings);
-    //$('#fridaymin').on('blur', setSettings);
-    //$('#saturdayhour').on('blur', setSettings);
-    //$('#saturdaymin').on('blur', setSettings);
-    //$('#sundayhour').on('blur', setSettings);
-    //$('#sundaymin').on('blur', setSettings);
 });
 
 
@@ -50,39 +36,44 @@ function setSettings() {
     settings = {
         wakeAllowed: [
             {
-                hour: $('#sundayhour').val(),
-                min: $('#sundaymin').val()
+                hour: parseInt($('#sundayhour').val()),
+                min: parseInt($('#sundaymin').val())
             },
             {
-                hour: $('#mondayhour').val(),
-                min: $('#mondaymin').val()
+                hour: parseInt($('#mondayhour').val()),
+                min: parseInt($('#mondaymin').val())
             },
             {
-                hour: $('#tuesdayhour').val(),
-                min: $('#tuesdaymin').val()
+                hour: parseInt($('#tuesdayhour').val()),
+                min: parseInt($('#tuesdaymin').val())
             },
             {
-                hour: $('#wednesdayhour').val(),
-                min: $('#wednesdaymin').val()
+                hour: parseInt($('#wednesdayhour').val()),
+                min: parseInt($('#wednesdaymin').val())
             },
             {
-                hour: $('#thursdayhour').val(),
-                min: $('#thursdaymin').val()
+                hour: parseInt($('#thursdayhour').val()),
+                min: parseInt($('#thursdaymin').val())
             },
             {
-                hour: $('#fridayhour').val(),
-                min: $('#fridaymin').val()
+                hour: parseInt($('#fridayhour').val()),
+                min: parseInt($('#fridaymin').val())
             },
             {
-                hour: $('#saturdayhour').val(),
-                min: $('#saturdaymin').val()
-            }]
+                hour: parseInt($('#saturdayhour').val()),
+                min: parseInt($('#saturdaymin').val())
+            }],
+        nightLight: {
+            duration: 100,
+            intensity: 0.2
+        }
     };
-
+    console.log('settings before POST :', settings);
+    console.log('settings before POST :', JSON.stringify(settings));
 
     $.ajax({
         type: 'POST',
-        data: JSON.stringify(settings),
+        data: settings,
         url: '/settings/setsettings',
         dataType: 'JSON'
     }).done(function (response) {
@@ -94,11 +85,11 @@ function setSettings() {
     });
 }
 
-
 function getServerTime() {
     $.getJSON('/settings/gettime', function (data) {
         console.log('time received: ', data);
-        getClock(data.msg);
+        var timeoffset = parseInt(new Date().getTimezoneOffset());
+        getClock(data.timeStamp + ( - timeoffset + data.timezoneOffset )*60 * 1000 );
     })
 }
 
@@ -124,20 +115,21 @@ function getSettings() {
 }
 
 
-tday = new Array("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday");
-tmonth = new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
-
 function setClock() {
     var d = new Date();
 
 }
 
-function getClock(serverDate) {
-    var d = new Date(serverDate);
+function getClock(serverTime) {
+    tday = new Array("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday");
+    tmonth = new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
+    //console.log('serverDate', serverDate);
+    //console.log(serverDate.timezoneOffset);
+    var d = new Date(serverTime);
     var nday = d.getDay(), nmonth = d.getMonth(), ndate = d.getDate(), nyear = d.getYear();
     if (nyear < 1000) nyear += 1900;
     var nhour = d.getHours(), nmin = d.getMinutes(), nsec = d.getSeconds(), ap;
-
+    console.log('hour received from server: '+ nhour);
     if (nhour == 0) {
         ap = " AM";
         nhour = 12;
@@ -157,5 +149,5 @@ function getClock(serverDate) {
     if (nsec <= 9) nsec = "0" + nsec;
 
     document.getElementById('clockbox').innerHTML = "" + tday[nday] + ", " + tmonth[nmonth] + " " + ndate + ", " + nyear + " " + nhour + ":" + nmin + ":" + nsec + ap + "";
-    setTimeout(getClock, 1000, serverDate + 1000);
+    setTimeout(getClock, 1000, serverTime + 1000);
 }
