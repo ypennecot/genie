@@ -1,12 +1,12 @@
 /**
  * Created by yannick on 09/01/2016.
  */
-//var piblaster = require("pi-blaster.js");
+var piblaster = require("pi-blaster.js");
 
     var State = require("./State");
 
 var timeToWakePin = 21;
-var nightLightPin = 20;
+var nightLightPin = 21;
 
 var settings = {
     wakeAllowed: {},
@@ -23,7 +23,7 @@ var lamp = function () {
         console.log('State require: ', State.nightLightStatus);
         State.nightLightStatus = true;
         console.log('State require: ', State.nightLightStatus);
-        //piblaster.setPwm(nightLightPin, settings.nightLight.intensity );
+        piblaster.setPwm(nightLightPin, settings.nightLight.intensity );
         console.log('LAMP: Switching nightLight on');
         nightLightTimer = setTimeout(this.turnNightLightOff, parseInt(settings.nightLight.duration));
     };
@@ -33,7 +33,7 @@ var lamp = function () {
         console.log('State require: ', State.nightLightStatus);
 
         if (nightLightTimer) { clearTimeout(nightLightTimer)}
-        //piblaster.setPwm(led, 0 );
+        piblaster.setPwm(nightLightPin, 0 );
         console.log('LAMP: Switching nightLight off');
     };
 
@@ -73,7 +73,7 @@ var lamp = function () {
 
     this.startWakeUpAllowedLight = function () {
         console.log('wake up allowed light turned on');
-        //piblaster.setPwm(timeToWakePin, 1);
+        piblaster.setPwm(timeToWakePin, 1);
         if (offTimers[0]) {
             clearTimeout(offTimers[0])
         }
@@ -82,7 +82,7 @@ var lamp = function () {
 
     this.stopWakeAllowedLight = function () {
         console.log('wake up allowed light turned off');
-        //piblaster.setPwm(timeToWakePin, 0);
+        piblaster.setPwm(timeToWakePin, 0);
     }
 };
 

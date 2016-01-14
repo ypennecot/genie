@@ -18,7 +18,7 @@ var settings = {
         {hour: 18, min: 3}],
     nightLight: {
         duration: 1000,
-        intensity: 80
+        intensity: 1
     }
 };
 lamp.updateSettings(settings);
