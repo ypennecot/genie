@@ -16,11 +16,14 @@ var settings = {
         {hour: 12, min: 54},
         {hour: 18, min: 3},
         {hour: 18, min: 3}],
+    wakeAllowedDuration: 1000 * 60 * 30,
+    wakeAllowedIntensity: 0.2,
     nightLight: {
-        duration: 1000,
-        intensity: 1
+        duration: 30 * 60 * 1000,
+        intensity: 0.5
     }
 };
+lamp.init();
 lamp.updateSettings(settings);
 
 /*
@@ -47,11 +50,20 @@ router.get('/getsettings', function (req, res) {
     res.json(settings);
 });
 
-router.post('/switchon', function (req, res) {
+router.post('/switchnightlight', function (req, res) {
     if (State.nightLightStatus) {
         lamp.turnNightLightOff();
     } else {
         lamp.turnNightLightOn();
+    }
+    res.send({msg: ''});
+});
+
+router.post('/switchwakeallowed', function (req, res) {
+    if (State.wakeAllowedLightStatus) {
+        lamp.stopWakeAllowedLight();
+    } else {
+        lamp.startWakeUpAllowedLight();
     }
     res.send({msg: ''});
 });

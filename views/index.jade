@@ -1,16 +1,24 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
-  div
-    button#btnTurnLightOn Turn Light ON
 
   div
     p the time is
     p(id="clockbox") time
 
+  h1 Night light
   div
+    button#btnSwitchNightLight Switch Night Light
+  div
+    p duration in min
+    input#nightLightDuration(type="text", placeholder="30")
+    p intensity (0-1)
+    input#nightLightIntensity(type="text", placeholder="1")
+
+  h1 Wake up allowed
+  div
+    div
+      button#btnSwitchWakeAllowed Switch wake up allowed
     ul
       li
         day monday
@@ -47,6 +55,13 @@ block content
         input#sundayhour(type="text", placeholder="7")
         input#sundaymin(type="text", placeholder="0")
         span(id="secremainingsun") seconds
+
+  div
+    p duration
+    input#wakeUpAllowedDuration(type="text", placeholder="30")
+    p intensity
+    input#wakeUpAllowedIntensity(type="text", placeholder="0.5")
+
 
   div
     button#updateSettings update settings

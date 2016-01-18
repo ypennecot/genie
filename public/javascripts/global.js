@@ -7,12 +7,13 @@ var settings = {};
 $(document).ready(function () {
     getServerTime();
     getSettings();
-    $('#btnTurnLightOn').on('click', switchLight);
+    $('#btnSwitchNightLight').on('click', switchNightLight);
+    $('#btnSwitchWakeAllowed').on('click', switchWakeAllowed);
     $('#updateSettings').on('click', setSettings);
 });
 
 
-function switchLight(event) {
+function switchNightLight(event) {
     event.preventDefault();
     var temp = {
         'light': 1
@@ -21,7 +22,27 @@ function switchLight(event) {
     $.ajax({
         type: 'POST',
         data: temp,
-        url: '/settings/switchon',
+        url: '/settings/switchnightlight',
+        dataType: 'JSON'
+    }).done(function (response) {
+        if (response.msg === '') {
+            console.log('message reçu');
+        } else {
+            console.log('NON!! Pas reçu!', response.msg);
+        }
+    });
+}
+
+function switchWakeAllowed(event) {
+    event.preventDefault();
+    var temp = {
+        'light': 1
+    };
+
+    $.ajax({
+        type: 'POST',
+        data: temp,
+        url: '/settings/switchwakeallowed',
         dataType: 'JSON'
     }).done(function (response) {
         if (response.msg === '') {
@@ -63,9 +84,11 @@ function setSettings() {
                 hour: parseInt($('#saturdayhour').val()),
                 min: parseInt($('#saturdaymin').val())
             }],
+        wakeAllowedDuration: parseInt($('#wakeUpAllowedDuration').val() * 1000 * 60 ),
+        wakeAllowedIntensity:$('#wakeUpAllowedIntensity').val(),
         nightLight: {
-            duration: 100,
-            intensity: 0.2
+            duration: parseInt($('#nightLightDuration').val() * 1000 * 60 ),
+            intensity: $('#nightLightIntensity').val()
         }
     };
     console.log('settings before POST :', settings);
@@ -111,6 +134,11 @@ function getSettings() {
         $('#fridaymin').val(settings.wakeAllowed[5].min);
         $('#saturdayhour').val(settings.wakeAllowed[6].hour);
         $('#saturdaymin').val(settings.wakeAllowed[6].min);
+        $('#nightLightDuration').val(settings.nightLight.duration / 1000 / 60 );
+        $('#nightLightIntensity').val(settings.nightLight.intensity);
+        $('#wakeUpAllowedDuration').val(settings.wakeAllowedDuration / 1000 / 60 );
+        $('#wakeUpAllowedIntensity').val(settings.wakeAllowedIntensity);
+
     })
 }
 
