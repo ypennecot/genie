@@ -40,7 +40,7 @@ var lamp = function () {
         State.nightLightStatus = true;
         //smoothlyChangeLedValue(NIGHTLIGHT_LED_PIN, 0, settings.nightLight.intensity, 2000);
         console.log('LAMP: Setting nightLamp off in ' + parseInt(this.settings.nightLight.duration) / 1000 / 60 + ' min');
-        nightLightTimer = setTimeout(this.turnNightLightOff, parseInt(this.settings.nightLight.duration));
+        nightLightTimer = setTimeout(this.turnNightLightOff.bind(this), parseInt(this.settings.nightLight.duration));
     };
 
     this.turnNightLightOff = function () {
@@ -83,7 +83,7 @@ var lamp = function () {
         var timeLeft = timeThen - timeNow;
         var millisecondsBeforeWakeUpAllowed = daysLeft * 24 * 3600 * 1000 + timeLeft;
         console.log(dayNum + ' on in: ' + millisecondsBeforeWakeUpAllowed / 1000 / 3600);
-        this.wakeAllowedOnTimers[dayNum] = setTimeout(this.startWakeUpAllowedLight, millisecondsBeforeWakeUpAllowed);
+        this.wakeAllowedOnTimers[dayNum] = setTimeout(this.startWakeUpAllowedLight.bind(this), millisecondsBeforeWakeUpAllowed);
         //wakeAllowedOffTimers[dayNum] = setTimeout(this.stopWakeAllowedLight, millisecondsBeforeWakeUpAllowed + parseInt(settings.wakeAllowed.duration));
     };
 
@@ -93,7 +93,7 @@ var lamp = function () {
         piblaster.setPwm(TIME_TO_WAKE_LED_PIN, this.settings.wakeAllowed.intensity);
         //console.log('setting timeout to turn off');
         console.log('LAMP: setting wakeAllowed off timer in ' + parseInt(this.settings.wakeAllowed.duration) / 1000 / 60 + ' minutes');
-        this.wakeAllowedOffTimer = setTimeout(this.stopWakeAllowedLight, parseInt(this.settings.wakeAllowed.duration));
+        this.wakeAllowedOffTimer = setTimeout(this.stopWakeAllowedLight.bind(this), parseInt(this.settings.wakeAllowed.duration));
     };
 
     this.stopWakeAllowedLight = function () {
