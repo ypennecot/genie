@@ -55,39 +55,42 @@ function switchWakeAllowed(event) {
 
 function setSettings() {
     settings = {
-        wakeAllowed: [
-            {
-                hour: parseInt($('#sundayhour').val()),
-                min: parseInt($('#sundaymin').val())
-            },
-            {
-                hour: parseInt($('#mondayhour').val()),
-                min: parseInt($('#mondaymin').val())
-            },
-            {
-                hour: parseInt($('#tuesdayhour').val()),
-                min: parseInt($('#tuesdaymin').val())
-            },
-            {
-                hour: parseInt($('#wednesdayhour').val()),
-                min: parseInt($('#wednesdaymin').val())
-            },
-            {
-                hour: parseInt($('#thursdayhour').val()),
-                min: parseInt($('#thursdaymin').val())
-            },
-            {
-                hour: parseInt($('#fridayhour').val()),
-                min: parseInt($('#fridaymin').val())
-            },
-            {
-                hour: parseInt($('#saturdayhour').val()),
-                min: parseInt($('#saturdaymin').val())
-            }],
-        wakeAllowedDuration: parseInt($('#wakeUpAllowedDuration').val() * 1000 * 60 ),
-        wakeAllowedIntensity:$('#wakeUpAllowedIntensity').val(),
+        wakeAllowed: {
+            timing: [
+                {
+                    hour: parseInt($('#sundayhour').val()),
+                    min: parseInt($('#sundaymin').val())
+                },
+                {
+                    hour: parseInt($('#mondayhour').val()),
+                    min: parseInt($('#mondaymin').val())
+                },
+                {
+                    hour: parseInt($('#tuesdayhour').val()),
+                    min: parseInt($('#tuesdaymin').val())
+                },
+                {
+                    hour: parseInt($('#wednesdayhour').val()),
+                    min: parseInt($('#wednesdaymin').val())
+                },
+                {
+                    hour: parseInt($('#thursdayhour').val()),
+                    min: parseInt($('#thursdaymin').val())
+                },
+                {
+                    hour: parseInt($('#fridayhour').val()),
+                    min: parseInt($('#fridaymin').val())
+                },
+                {
+                    hour: parseInt($('#saturdayhour').val()),
+                    min: parseInt($('#saturdaymin').val())
+                }],
+
+            duration: parseInt($('#wakeUpAllowedDuration').val() * 1000 * 60),
+            intensity: $('#wakeUpAllowedIntensity').val(),
+        },
         nightLight: {
-            duration: parseInt($('#nightLightDuration').val() * 1000 * 60 ),
+            duration: parseInt($('#nightLightDuration').val() * 1000 * 60),
             intensity: $('#nightLightIntensity').val()
         }
     };
@@ -112,7 +115,7 @@ function getServerTime() {
     $.getJSON('/settings/gettime', function (data) {
         console.log('time received: ', data);
         var timeoffset = parseInt(new Date().getTimezoneOffset());
-        getClock(data.timeStamp + ( - timeoffset + data.timezoneOffset )*60 * 1000 );
+        getClock(data.timeStamp + ( -timeoffset + data.timezoneOffset ) * 60 * 1000);
     })
 }
 
@@ -120,25 +123,24 @@ function getSettings() {
     $.getJSON('/settings/getsettings', function (data) {
         console.log('settings received: ', data);
         settings = JSON.parse(JSON.stringify(data));
-        $('#sundayhour').val(settings.wakeAllowed[0].hour);
-        $('#sundaymin').val(settings.wakeAllowed[0].min);
-        $('#mondayhour').val(settings.wakeAllowed[1].hour);
-        $('#mondaymin').val(settings.wakeAllowed[1].min);
-        $('#tuesdayhour').val(settings.wakeAllowed[2].hour);
-        $('#tuesdaymin').val(settings.wakeAllowed[2].min);
-        $('#wednesdayhour').val(settings.wakeAllowed[3].hour);
-        $('#wednesdaymin').val(settings.wakeAllowed[3].min);
-        $('#thursdayhour').val(settings.wakeAllowed[4].hour);
-        $('#thursdaymin').val(settings.wakeAllowed[4].min);
-        $('#fridayhour').val(settings.wakeAllowed[5].hour);
-        $('#fridaymin').val(settings.wakeAllowed[5].min);
-        $('#saturdayhour').val(settings.wakeAllowed[6].hour);
-        $('#saturdaymin').val(settings.wakeAllowed[6].min);
-        $('#nightLightDuration').val(settings.nightLight.duration / 1000 / 60 );
+        $('#sundayhour').val(settings.wakeAllowed.timing[0].hour);
+        $('#sundaymin').val(settings.wakeAllowed.timing[0].min);
+        $('#mondayhour').val(settings.wakeAllowed.timing[1].hour);
+        $('#mondaymin').val(settings.wakeAllowed.timing[1].min);
+        $('#tuesdayhour').val(settings.wakeAllowed.timing[2].hour);
+        $('#tuesdaymin').val(settings.wakeAllowed.timing[2].min);
+        $('#wednesdayhour').val(settings.wakeAllowed.timing[3].hour);
+        $('#wednesdaymin').val(settings.wakeAllowed.timing[3].min);
+        $('#thursdayhour').val(settings.wakeAllowed.timing[4].hour);
+        $('#thursdaymin').val(settings.wakeAllowed.timing[4].min);
+        $('#fridayhour').val(settings.wakeAllowed.timing[5].hour);
+        $('#fridaymin').val(settings.wakeAllowed.timing[5].min);
+        $('#saturdayhour').val(settings.wakeAllowed.timing[6].hour);
+        $('#saturdaymin').val(settings.wakeAllowed.timing[6].min);
+        $('#wakeUpAllowedDuration').val(settings.wakeAllowed.duration / 1000 / 60);
+        $('#wakeUpAllowedIntensity').val(settings.wakeAllowed.intensity);
+        $('#nightLightDuration').val(settings.nightLight.duration / 1000 / 60);
         $('#nightLightIntensity').val(settings.nightLight.intensity);
-        $('#wakeUpAllowedDuration').val(settings.wakeAllowedDuration / 1000 / 60 );
-        $('#wakeUpAllowedIntensity').val(settings.wakeAllowedIntensity);
-
     })
 }
 
@@ -157,7 +159,7 @@ function getClock(serverTime) {
     var nday = d.getDay(), nmonth = d.getMonth(), ndate = d.getDate(), nyear = d.getYear();
     if (nyear < 1000) nyear += 1900;
     var nhour = d.getHours(), nmin = d.getMinutes(), nsec = d.getSeconds(), ap;
-    console.log('hour received from server: '+ nhour);
+    console.log('hour received from server: ' + nhour);
     if (nhour == 0) {
         ap = " AM";
         nhour = 12;

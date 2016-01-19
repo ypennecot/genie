@@ -3,12 +3,12 @@
  */
 
 var State = function () {
-    if(!State.initiated) {
-        State.nightLightStatus = false;
-        State.wakeAllowedLightStatus = false;
-    } else {
-        State.initiated = true;
-    }
-};
+        if(!State.initiated) {
+            State.nightLightStatus = false;
+            State.wakeAllowedLightStatus = false;
+        } else {
+            State.initiated = true;
+        }
+    };
 
 module.exports = State;

@@ -6,31 +6,28 @@ var gpio = require("rpi-gpio");
 
 var State = require("./State");
 
-var timeToWakeLedPin = 21;
-var nightLightLedPin = 22;
-var nightLightButtonPin = 7;
+var TIME_TO_WAKE_LED_PIN = 21;
+var NIGHTLIGHT_LED_PIN = 22;
+var NIGHTLIGHT_BUTTON_PIN = 7;
 
-var settings = {
-    wakeAllowed: {},
-    wakeAllowedDuration: 10 * 60 * 1000
-};
-var onTimers = [];
-var offTimers = [];
-var nightLightTimer;
-var wakeAllowedOffTimer;
-
-
-
-piblaster.setPwm(timeToWakeLedPin, 0);
-piblaster.setPwm(nightLightLedPin, 0);
-
-
+var SMOOTH_TRANSITION_STEP = 100;
 
 var lamp = function () {
 
-    this.init = function () {
-        gpio.setup(nightLightButtonPin, gpio.DIR_IN, gpio.EDGE_RISING);
+    this.nightLightTimer = null;
+    this.wakeAllowedOffTimer = null;
+    this.wakeAllowedOnTimers = [];
+    this.wakeAllowedOffTimers = [];
+    this.settings = {};
+    this.smoothInterval = [];
 
+    this.init = function () {
+        //Set everything to 0
+        piblaster.setPwm(TIME_TO_WAKE_LED_PIN, 0);
+        piblaster.setPwm(NIGHTLIGHT_LED_PIN, 0);
+
+        //Listen to Button
+        gpio.setup(NIGHTLIGHT_BUTTON_PIN, gpio.DIR_IN, gpio.EDGE_RISING);
         gpio.on('change', function(channel, value) {
             console.log('Channel ' + channel + ' value is now ' + value);
             this.turnNightLightOn();
@@ -38,32 +35,36 @@ var lamp = function () {
     };
 
     this.turnNightLightOn = function () {
-        State.nightLightStatus = true;
-        piblaster.setPwm(nightLightLedPin, settings.nightLight.intensity );
         console.log('LAMP: Switching nightLight ON');
-        nightLightTimer = setTimeout(this.turnNightLightOff, parseInt(settings.nightLight.duration));
+        piblaster.setPwm(NIGHTLIGHT_LED_PIN, this.settings.nightLight.intensity );
+        State.nightLightStatus = true;
+        //smoothlyChangeLedValue(NIGHTLIGHT_LED_PIN, 0, settings.nightLight.intensity, 2000);
+        console.log('LAMP: Setting nightLamp off in ' + parseInt(this.settings.nightLight.duration) / 1000 / 60 + ' min');
+        nightLightTimer = setTimeout(this.turnNightLightOff, parseInt(this.settings.nightLight.duration));
     };
 
     this.turnNightLightOff = function () {
-        State.nightLightStatus = false;
         console.log('LAMP: Switching nightLight OFF');
-        if (nightLightTimer) { clearTimeout(nightLightTimer)}
-        piblaster.setPwm(nightLightLedPin, 0 );
+        if (this.nightLightTimer) { clearTimeout(this.nightLightTimer)}
+        //smoothlyChangeLedValue(NIGHTLIGHT_LED_PIN, settings.nightLight.intensity, 0, 2000);
+        piblaster.setPwm(NIGHTLIGHT_LED_PIN, 0 );
+        State.nightLightStatus = false;
     };
 
     this.updateSettings = function (newSettings) {
-        console.log('LAMP: settings updated', newSettings);
-        settings = newSettings;
+        console.log('LAMP: updating settings with', newSettings);
+        //console.log('Lamp timing: ', newSettings.wakeAllowed.timing);
+        this.settings = newSettings;
         for (var i = 0; i <= 6; i++) {
-            this.updateTimer(i, settings.wakeAllowed[i].hour, settings.wakeAllowed[i].min);
+            this.updateTimer(i, this.settings.wakeAllowed.timing[i].hour, this.settings.wakeAllowed.timing[i].min);
         }
 
     };
 
     this.updateTimer = function (dayNum, hour, minute) {
-        if (onTimers[dayNum]) {
-            clearTimeout(onTimers[dayNum]);
-            clearTimeout(offTimers[dayNum]);
+        if (this.wakeAllowedOnTimers[dayNum]) {
+            clearTimeout(this.wakeAllowedOnTimers[dayNum]);
+            clearTimeout(this.wakeAllowedOffTimers[dayNum]);
         }
         var dateTimeNow = new Date();
         var today = dateTimeNow.getDay();
@@ -82,24 +83,42 @@ var lamp = function () {
         var timeLeft = timeThen - timeNow;
         var millisecondsBeforeWakeUpAllowed = daysLeft * 24 * 3600 * 1000 + timeLeft;
         console.log(dayNum + ' on in: ' + millisecondsBeforeWakeUpAllowed / 1000 / 3600);
-        onTimers[dayNum] = setTimeout(this.startWakeUpAllowedLight, millisecondsBeforeWakeUpAllowed);
-        offTimers[dayNum] = setTimeout(this.stopWakeAllowedLight, millisecondsBeforeWakeUpAllowed + parseInt(settings.wakeAllowedDuration));
+        this.wakeAllowedOnTimers[dayNum] = setTimeout(this.startWakeUpAllowedLight, millisecondsBeforeWakeUpAllowed);
+        //wakeAllowedOffTimers[dayNum] = setTimeout(this.stopWakeAllowedLight, millisecondsBeforeWakeUpAllowed + parseInt(settings.wakeAllowed.duration));
     };
 
     this.startWakeUpAllowedLight = function () {
         State.wakeAllowedLightStatus = true;
-
-        console.log('wake up allowed light turned on');
-        piblaster.setPwm(timeToWakeLedPin, 1);
+        console.log('LAMP: wake up allowed light switched on');
+        piblaster.setPwm(TIME_TO_WAKE_LED_PIN, this.settings.wakeAllowed.intensity);
         //console.log('setting timeout to turn off');
-        wakeAllowedOffTimer = setTimeout(this.stopWakeAllowedLight, parseInt(settings.wakeAllowedDuration));
+        console.log('LAMP: setting wakeAllowed off timer in ' + parseInt(this.settings.wakeAllowed.duration) / 1000 / 60 + ' minutes');
+        this.wakeAllowedOffTimer = setTimeout(this.stopWakeAllowedLight, parseInt(this.settings.wakeAllowed.duration));
     };
 
     this.stopWakeAllowedLight = function () {
-        console.log('wake up allowed light turned off');
+        clearTimeout(this.wakeAllowedOffTimer);
         State.wakeAllowedLightStatus = false;
-        piblaster.setPwm(timeToWakeLedPin, 0);
-    }
+        piblaster.setPwm(TIME_TO_WAKE_LED_PIN, 0);
+        console.log('wake up allowed light turned off');
+    };
+
+    //function smoothlyChangeLedValue(ledPin, currentValue, targetValue, duration) {
+    //    smoothInterval[ledPin] = setInterval(changeLedValue, SMOOTH_TRANSITION_STEP, ledPin, currentValue, targetValue, duration, Date.now());
+    //}
+    //
+    //function changeLedValue(ledPin, initialValue, targetValue, duration, startTime) {
+    //    if (Date.now() > startTime + duration ) {
+    //        piblaster.setPwm(ledPin, targetValue);
+    //        console.log('ending smooth animation');
+    //        clearInterval(smoothInterval[ledPin]);
+    //    } else {
+    //        var newValue = (Date.now() - startTime) / duration * (targetValue - initialValue);
+    //        console.log('setting PWM to :', newValue);
+    //        piblaster.setPwm(ledPin, newValue);
+    //    }
+    //}
+
 };
 
 module.exports = lamp;

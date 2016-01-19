@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var fs = require('fs');
 
 var Lamp = require('../lamp/lamp');
 var State = require('../lamp/State');
@@ -7,23 +8,30 @@ var State = require('../lamp/State');
 var lamp = new Lamp();
 
 
-var settings = {
-    wakeAllowed: [
-        {hour: 18, min: 3},
-        {hour: 18, min: 3},
-        {hour: 18, min: 3},
-        {hour: 18, min: 48},
-        {hour: 12, min: 54},
-        {hour: 18, min: 3},
-        {hour: 18, min: 3}],
-    wakeAllowedDuration: 1000 * 60 * 30,
-    wakeAllowedIntensity: 0.2,
-    nightLight: {
-        duration: 30 * 60 * 1000,
-        intensity: 0.5
-    }
-};
+var settings = JSON.parse(fs.readFileSync('./lamp/settings.json', 'utf8'));
+
+//{
+//    wakeAllowed: {
+//        timing: [
+//            {hour: 18, min: 3},
+//            {hour: 18, min: 3},
+//            {hour: 18, min: 3},
+//            {hour: 18, min: 48},
+//            {hour: 12, min: 54},
+//            {hour: 18, min: 3},
+//            {hour: 18, min: 3}],
+//        duration: 1000 * 60 * 30,
+//        intensity: 0.2
+//    },
+//    nightLight: {
+//        duration: 30 * 60 * 1000,
+//        intensity: 0.5
+//    }
+//};
+console.log('SETTINGS: ', settings);
 lamp.init();
+
+console.log('timing: ', settings.wakeAllowed.timing);
 lamp.updateSettings(settings);
 
 /*
@@ -32,7 +40,6 @@ lamp.updateSettings(settings);
 router.get('/settings', function (req, res) {
     console.log('GET /settings');
 });
-
 
 router.get('/gettime', function (req, res) {
     console.log('GET /settings/gettime');
@@ -73,6 +80,15 @@ router.post('/setsettings', function (req, res) {
     settings = JSON.parse(JSON.stringify(req.body));
     console.log('settings received', settings);
     lamp.updateSettings(settings);
+    fs.writeFile('./lamp/settings.json', JSON.stringify(settings), function (err) {
+        if (err) {
+            console.log(err)
+        }
+        else {
+            console.log('json saved');
+        }
+
+    });
     res.send('coucou');
 });
 
