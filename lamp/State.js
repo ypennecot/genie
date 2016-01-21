@@ -4,6 +4,8 @@
 
 var State = function () {
         if(!State.initiated) {
+            console.log('State initialized');
+            State = {};
             State.nightLightStatus = false;
             State.wakeAllowedLightStatus = false;
         } else {

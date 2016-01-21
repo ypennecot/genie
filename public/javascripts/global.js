@@ -10,6 +10,7 @@ $(document).ready(function () {
     $('#btnSwitchNightLight').on('click', switchNightLight);
     $('#btnSwitchWakeAllowed').on('click', switchWakeAllowed);
     $('#updateSettings').on('click', setSettings);
+    $('#getState').on('click', getState);
 });
 
 
@@ -144,6 +145,12 @@ function getSettings() {
     })
 }
 
+function getState() {
+    $.getJSON('/settings/getstate', function (data) {
+        console.log('state received: ', data);
+    })
+}
+
 
 function setClock() {
     var d = new Date();
@@ -151,8 +158,8 @@ function setClock() {
 }
 
 function getClock(serverTime) {
-    tday = new Array("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday");
-    tmonth = new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
+    tday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    tmonth = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     //console.log('serverDate', serverDate);
     //console.log(serverDate.timezoneOffset);
     var d = new Date(serverTime);

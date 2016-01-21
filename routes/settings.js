@@ -57,7 +57,16 @@ router.get('/getsettings', function (req, res) {
     res.json(settings);
 });
 
+router.get('/getstate', function (req, res) {
+    console.log('GET /settings/state');
+    console.log('state requested ', State);
+    res.json(State);
+});
+
+
+
 router.post('/switchnightlight', function (req, res) {
+    console.log(State);
     if (State.nightLightStatus) {
         lamp.turnNightLightOff();
     } else {

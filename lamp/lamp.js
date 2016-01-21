@@ -38,6 +38,7 @@ var lamp = function () {
         console.log('LAMP: Switching nightLight ON');
         piblaster.setPwm(NIGHTLIGHT_LED_PIN, this.settings.nightLight.intensity );
         State.nightLightStatus = true;
+        State.nightLightOffAt = Date.now() + parseInt(this.settings.nightLight.duration);
         //smoothlyChangeLedValue(NIGHTLIGHT_LED_PIN, 0, settings.nightLight.intensity, 2000);
         console.log('LAMP: Setting nightLamp off in ' + parseInt(this.settings.nightLight.duration) / 1000 / 60 + ' min');
         nightLightTimer = setTimeout(this.turnNightLightOff.bind(this), parseInt(this.settings.nightLight.duration));
@@ -89,6 +90,7 @@ var lamp = function () {
 
     this.startWakeUpAllowedLight = function () {
         State.wakeAllowedLightStatus = true;
+        State.wakeAllowedLightOffAt = Date.now() + parseInt(this.settings.wakeAllowed.duration);
         console.log('LAMP: wake up allowed light switched on');
         piblaster.setPwm(TIME_TO_WAKE_LED_PIN, this.settings.wakeAllowed.intensity);
         //console.log('setting timeout to turn off');
