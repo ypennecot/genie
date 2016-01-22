@@ -27,28 +27,42 @@ var lamp = function () {
         piblaster.setPwm(NIGHTLIGHT_LED_PIN, 0);
 
         //Listen to Button
-        gpio.setup(NIGHTLIGHT_BUTTON_PIN, gpio.DIR_IN, gpio.EDGE_RISING);
-        gpio.on('change', function(channel, value) {
-            console.log('Channel ' + channel + ' value is now ' + value);
-            this.turnNightLightOn();
+        gpio.setup(NIGHTLIGHT_BUTTON_PIN, gpio.DIR_IN, gpio.EDGE_BOTH);
+        gpio.on('change', function (channel, value) {
+            console.log('button has been pressed ', value);
+            if (value) {
+                this.buttonPressedTime = Date.now();
+            } else {
+                if (Date.now() - this.buttonPressedTime > 200) {
+                    console.log('button has been pressed long enough');
+                    this.turnNightLightOn();
+                }
+            }
         }.bind(this));
     };
 
     this.turnNightLightOn = function () {
-        console.log('LAMP: Switching nightLight ON');
-        piblaster.setPwm(NIGHTLIGHT_LED_PIN, this.settings.nightLight.intensity );
+        var d = new Date;
+        console.log('LAMP: Switching nightLight ON at :', d.toString());
+        piblaster.setPwm(NIGHTLIGHT_LED_PIN, this.settings.nightLight.intensity);
         State.nightLightStatus = true;
         State.nightLightOffAt = Date.now() + parseInt(this.settings.nightLight.duration);
         //smoothlyChangeLedValue(NIGHTLIGHT_LED_PIN, 0, settings.nightLight.intensity, 2000);
         console.log('LAMP: Setting nightLamp off in ' + parseInt(this.settings.nightLight.duration) / 1000 / 60 + ' min');
-        nightLightTimer = setTimeout(this.turnNightLightOff.bind(this), parseInt(this.settings.nightLight.duration));
+        if (this.nightLightTimer) {
+            clearTimeout(this.nightLightTimer)
+        }
+        this.nightLightTimer = setTimeout(this.turnNightLightOff.bind(this), parseInt(this.settings.nightLight.duration));
     };
 
     this.turnNightLightOff = function () {
-        console.log('LAMP: Switching nightLight OFF');
-        if (this.nightLightTimer) { clearTimeout(this.nightLightTimer)}
+        var d = new Date;
+        console.log('LAMP: Switching nightLight OFF at ', d.toString());
+        if (this.nightLightTimer) {
+            clearTimeout(this.nightLightTimer)
+        }
         //smoothlyChangeLedValue(NIGHTLIGHT_LED_PIN, settings.nightLight.intensity, 0, 2000);
-        piblaster.setPwm(NIGHTLIGHT_LED_PIN, 0 );
+        piblaster.setPwm(NIGHTLIGHT_LED_PIN, 0);
         State.nightLightStatus = false;
     };
 
@@ -59,7 +73,9 @@ var lamp = function () {
         for (var i = 0; i <= 6; i++) {
             this.updateTimer(i, this.settings.wakeAllowed.timing[i].hour, this.settings.wakeAllowed.timing[i].min);
         }
+        if (State.nightLightStatus) {
 
+        }
     };
 
     this.updateTimer = function (dayNum, hour, minute) {
