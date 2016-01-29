@@ -22,23 +22,23 @@ var lamp = function () {
     this.smoothInterval = [];
 
     this.init = function () {
-        ////Set everything to 0
-        //piblaster.setPwm(TIME_TO_WAKE_LED_PIN, 0);
-        //piblaster.setPwm(NIGHTLIGHT_LED_PIN, 0);
-        //
-        ////Listen to Button
-        //gpio.setup(NIGHTLIGHT_BUTTON_PIN, gpio.DIR_IN, gpio.EDGE_BOTH);
-        //gpio.on('change', function (channel, value) {
-        //    console.log('button has been pressed ', value);
-        //    if (value) {
-        //        this.buttonPressedTime = Date.now();
-        //    } else {
-        //        if (Date.now() - this.buttonPressedTime > 200) {
-        //            console.log('button has been pressed long enough');
-        //            this.turnNightLightOn();
-        //        }
-        //    }
-        //}.bind(this));
+        //Set everything to 0
+        piblaster.setPwm(TIME_TO_WAKE_LED_PIN, 0);
+        piblaster.setPwm(NIGHTLIGHT_LED_PIN, 0);
+
+        //Listen to Button
+        gpio.setup(NIGHTLIGHT_BUTTON_PIN, gpio.DIR_IN, gpio.EDGE_BOTH);
+        gpio.on('change', function (channel, value) {
+            console.log('button has been pressed ', value);
+            if (value) {
+                this.buttonPressedTime = Date.now();
+            } else {
+                if (Date.now() - this.buttonPressedTime > 200) {
+                    console.log('button has been pressed long enough');
+                    this.turnNightLightOn();
+                }
+            }
+        }.bind(this));
     };
 
     this.turnNightLightOn = function () {
