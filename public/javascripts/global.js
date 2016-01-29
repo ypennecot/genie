@@ -148,6 +148,16 @@ function getSettings() {
 function getState() {
     $.getJSON('/settings/getstate', function (data) {
         console.log('state received: ', data);
+        if(data.nightLightStatus) {
+            $('#nightlight').addClass('light-on');
+        } else {
+            $('#nightlight').removeClass('light-on');
+        }
+        if(data.wakeAllowedLightStatus) {
+            $('#wakeallowed').addClass('light-on');
+        } else {
+            $('#wakeallowed').removeClass('light-on');
+        }
     })
 }
 
